@@ -1,23 +1,36 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import React from 'react'
+import {NativeRouter, Route} from 'react-router-native'
+import styled from 'styled-components/native'
 
-import useCachedResources from './examples/hooks/useCachedResources';
-import useColorScheme from './examples/hooks/useColorScheme';
-import Navigation from './examples/navigation';
+import Recipes from './src/components/Recipes'
 
-export default function App() {
-  const isLoadingComplete = useCachedResources();
-  const colorScheme = useColorScheme();
+//Styled components with react native 
+const Wrapper = styled.View`
+  flex: 1; 
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+`
 
-  if (!isLoadingComplete) {
-    return null;
-  } else {
-    return (
-      <SafeAreaProvider>
-        <Navigation colorScheme={colorScheme} />
-        <StatusBar />
-      </SafeAreaProvider>
-    );
-  }
+const Title = styled.Text `
+    font-size: 40px; 
+    color: black;
+    margin: 20px; 
+`
+
+//Our app is implemented with Router for react native
+function App() {
+  return (
+      <Wrapper>
+          <Title>Hello World</Title>
+        <NativeRouter>
+              <Route exact path="/" component={Recipes} />
+        </NativeRouter>
+      </Wrapper>
+  )
 }
+
+export default App
