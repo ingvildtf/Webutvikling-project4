@@ -2,6 +2,10 @@ import React from 'react'
 import {NativeRouter, Route} from 'react-router-native'
 import styled from 'styled-components/native'
 
+import { AppRegistry } from 'react-native';
+import { ApolloProvider } from '@apollo/client'
+import client from './src/initApollo'
+
 import Recipes from './src/components/Recipes'
 
 //Styled components with react native 
@@ -24,13 +28,17 @@ const Title = styled.Text `
 //Our app is implemented with Router for react native
 function App() {
   return (
+    <ApolloProvider client={client}>
       <Wrapper>
           <Title>Hello World</Title>
         <NativeRouter>
               <Route exact path="/" component={Recipes} />
         </NativeRouter>
       </Wrapper>
+      </ApolloProvider>
   )
 }
+
+AppRegistry.registerComponent('MyApplication', () => App);
 
 export default App

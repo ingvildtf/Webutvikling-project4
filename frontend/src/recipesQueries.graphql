@@ -1,0 +1,7 @@
+#import "./recipesFragment.graphql"
+query Recipes{
+    recipes{
+        ID
+        ...recipesFragment
+    }
+}

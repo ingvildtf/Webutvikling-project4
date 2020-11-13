@@ -1,0 +1,9 @@
+#import "./types.graphql"
+fragment recipeFragment on Recipes {
+      Name
+      Category
+      Instruction
+      Ingredients
+      Image
+      Review
+}
