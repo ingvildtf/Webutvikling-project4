@@ -27,7 +27,7 @@ function App() {
       <Wrapper>
           <Title>Hello World</Title>
         <NativeRouter>
-              <Route exact path="/" component={Recipes} />
+            <Route exact path="/" component={Recipes} />
         </NativeRouter>
       </Wrapper>
   )
