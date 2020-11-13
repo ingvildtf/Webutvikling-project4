@@ -1,7 +1,7 @@
 {
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
+    "start": "rimraf ./node_modules/.cache/babel-loader && expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
@@ -13,6 +13,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@apollo/client": "^3.2.5",
     "@expo/vector-icons": "^10.0.0",
     "@react-native-community/masked-view": "0.1.10",
     "@react-navigation/bottom-tabs": "^5.8.0",
@@ -26,7 +27,10 @@
     "expo-splash-screen": "~0.6.2",
     "expo-status-bar": "~1.0.2",
     "expo-web-browser": "~8.5.0",
+    "graphql": "^15.4.0",
+    "graphql-tag": "^2.11.0",
     "react": "16.13.1",
+    "react-apollo": "^3.1.5",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-39.0.4.tar.gz",
     "react-native-gesture-handler": "~1.7.0",
@@ -37,11 +41,14 @@
     "styled-components": "^5.2.1"
   },
   "devDependencies": {
-    "@babel/core": "~7.9.0",
+    "@babel/core": "^7.12.3",
+    "@types/babel-core": "^6.25.6",
+    "@types/graphql": "^14.5.0",
     "@types/react": "~16.9.35",
     "@types/react-native": "~0.63.2",
-    "@types/styled-components": "^5.1.4",
     "@types/react-router-native": "^5.1.0",
+    "@types/styled-components": "^5.1.4",
+    "babel-plugin-import-graphql": "^2.7.0",
     "cypress": "^5.6.0",
     "jest-expo": "~39.0.0",
     "typescript": "~3.9.5"
