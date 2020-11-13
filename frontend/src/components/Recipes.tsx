@@ -1,59 +1,104 @@
-import React from 'react';
+import * as React from 'react'
 import styled from 'styled-components/native'
+import { CheckBox } from 'react-native-elements'
+import RecipeDisplay from './RecipeDisplay'
+import { Image } from 'react-native'
 
-const Wrapper = styled.View `
-    margin: 5vw;
-    display: flex;
-    background: white;
-    align-content: space-between;
-    justify-content: space-between;
+const Wrapper = styled.View`
+  margin: 1%;
+  display: flex;
+`
+//Wraps button and styled searchbar
+const SearchBarWrapper = styled.View`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 40px;
 `
 
 const Button = styled.TouchableOpacity`
-    color: white;
-    background-color: #607878;
-    height: 50px;
-    width: 12vw; 
-    cursor: pointer;
-    font-family: sans-serif;
-    outline: none; 
-`
-const ButtonArea = styled.View `
-    position: relative;
-    display: flex;
-    justify-content: flex-end;
-`
-
-const SearchBar = styled.TextInput`
-    width: 72vw;
-    height: 100%;
-    font-size: 17px;
-    font-family: sans-serif;
-    border: 1px solid transparent;
-    color: #afc9be;
-    border-bottom: 1px solid #607878;
-
-    &:focus {
-        outline: none; 
-    }
-`
-
-const Container = styled.View `
-  flex: 1;
+  background-color: #607878;
+  height: 100%;
+  width: 15%;
+  display: flex;
   align-items: center;
   justify-content: center;
 `
 
-const Title = styled.Text `
-    font-size: 20px; 
-    color: black;
-    margin: 20px;
+const StyledText = styled.Text`
+  font-size: 20px;
+  color: white;
+`
+const StyledSearchBar = styled.TextInput`
+  width: 80%;
+  height: 100%;
+  background-color: white;
+  font-size: 17px;
+  color: #afc9be;
+  border: 2px solid #607878;
+  display: flex;
+  text-align: center;
+`
+const Categories = styled.View`
+  padding-right: 10px;
+  text-decoration: none;
+  background-color: lightblue;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
 `
 
-export default function Recipes() {
-    return (
-        <Container>
-            <Title>Hei</Title>
-        </Container>
-    )
+const Recipe = styled.View`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`
+
+const Recipes: React.FunctionComponent = () => {
+  return (
+    <Wrapper>
+      <SearchBarWrapper>
+        <StyledSearchBar
+          onKeyDown={() => {}}
+          placeholder="What would you like?"
+        />
+        <Button type="submit" onClick={() => {}}>
+          <StyledText>SEARCH</StyledText>
+        </Button>
+      </SearchBarWrapper>
+
+      <Categories>
+        <CheckBox
+          center
+          title="Dinner"
+          checkedIcon="dot-circle-o"
+          uncheckedIcon="circle-o"
+          checked={false}
+          checkedColor="#607878"
+        />
+        <CheckBox
+          center
+          title="Breakfast"
+          checkedIcon="dot-circle-o"
+          uncheckedIcon="circle-o"
+          checked={true}
+          checkedColor="#607878"
+        />
+        <CheckBox
+          center
+          title="Dessert"
+          checkedIcon="dot-circle-o"
+          uncheckedIcon="circle-o"
+          checked={true}
+          checkedColor="#607878"
+        />
+      </Categories>
+
+      <Recipe>
+        <RecipeDisplay />
+      </Recipe>
+    </Wrapper>
+  )
 }
+
+export default Recipes
