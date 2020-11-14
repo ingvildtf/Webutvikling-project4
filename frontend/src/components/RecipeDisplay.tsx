@@ -1,7 +1,11 @@
 import React from 'react'
 import styled from 'styled-components/native'
 import { FlatList } from 'react-native'
+import { gql, useQuery } from '@apollo/client'
 
+import { GET_RECIPE_QUERY } from '../queries'
+
+//Styling using styled components
 export const Wrapper = styled.View`
   margin-top: 10px;
   display: flex;
@@ -74,9 +78,62 @@ const recipes = [
   },
 ]
 
+//Interface for typescript use with Apollog client and graphql
+interface RecipesInterface {
+  ID: string
+  Name: string
+  Category: string
+  Instruction: string
+  Ingredients: string
+  Image: string
+  Review: number | undefined | null[]
+}
+interface RecipeInterfaceData {
+  recipes: RecipesInterface[]
+}
+
+interface RecipesInterfaceVars {
+  offset: number
+  limit: number
+  sortDecending: number
+}
+
+//Fetching data from backend by using Apollo Client
 const RecipeDisplay = () => {
+  const { data, loading, error } = useQuery<
+    RecipeInterfaceData,
+    RecipesInterfaceVars
+  >(GET_RECIPE_QUERY, {
+    variables: { offset: 0, limit: 15, sortDecending: -1 },
+  })
+
+  if (loading)
+    return (
+      <CardRatingWrapper>
+        <CardTitle>Loading...</CardTitle>
+      </CardRatingWrapper>
+    )
+  if (error) {
+    console.log(error)
+    return (
+      <CardRatingWrapper>
+        <CardTitle>Error!</CardTitle>
+      </CardRatingWrapper>
+    )
+  }
+
   return (
     <Wrapper>
+      {data != undefined ? (
+        <FlatList
+          data={data.recipes}
+          renderItem={({ item }) => <CardTitle>{item.Name}</CardTitle>}
+          keyExtractor={recipe => recipe.ID}
+        ></FlatList>
+      ) : (
+        <CardTitle>Undefined</CardTitle>
+      )}
+
       <RecipeCard onClick={() => {}}>
         <CardImage
           source={{

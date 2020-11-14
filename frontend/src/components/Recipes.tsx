@@ -1,8 +1,9 @@
 import * as React from 'react'
 import styled from 'styled-components/native'
 import { CheckBox } from 'react-native-elements'
-import RecipeDisplay from './RecipeDisplay'
 import { Image } from 'react-native'
+
+import RecipeDisplay from './RecipeDisplay'
 
 const Wrapper = styled.View`
   margin: 1%;
