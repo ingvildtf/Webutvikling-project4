@@ -1,7 +1,15 @@
 import React from 'react'
 import styled from 'styled-components/native'
 import { FlatList } from 'react-native'
+import { gql, useQuery } from '@apollo/client'
 
+import {
+  GET_RECIPE_QUERY,
+  RecipesInterfaceVars,
+  RecipeInterfaceData,
+} from '../queries'
+
+//Styling using styled components
 export const Wrapper = styled.View`
   margin-top: 10px;
   display: flex;
@@ -48,72 +56,51 @@ const CardRatingWrapper = styled.View<RecipeCardProps>`
   padding: 0 1px 1px 1px;
 `
 
-//Test-kode
-const recipes = [
-  {
-    name: 'Pizzabolle',
-    content: [
-      {
-        imageUrl:
-          'https://brands-a.prod.onewp.net/app/uploads/sites/4/2018/09/Pizzaboller.jpg',
-        time: '1 hour',
-        description: 'Not healthy, but good as hell.',
-      },
-    ],
-  },
-  {
-    name: 'Tomatsuppe',
-    content: [
-      {
-        imageUrl:
-          'https://idagranjansen.com/wp-content/uploads/tomatsuppe__p2b6663.jpg',
-        time: '2 hours',
-        description: 'This is the perfect dish.',
-      },
-    ],
-  },
-]
-
+//Fetching data from backend by using Apollo Client
 const RecipeDisplay = () => {
+  const { data, loading, error } = useQuery<
+    RecipeInterfaceData,
+    RecipesInterfaceVars
+  >(GET_RECIPE_QUERY, {
+    variables: { offset: 0, limit: 15, sortDecending: -1 },
+  })
+
+  if (loading)
+    return (
+      <CardRatingWrapper>
+        <CardTitle>Loading...</CardTitle>
+      </CardRatingWrapper>
+    )
+  if (error) {
+    console.log(error)
+    return (
+      <CardRatingWrapper>
+        <CardTitle>Error!</CardTitle>
+      </CardRatingWrapper>
+    )
+  }
+
   return (
     <Wrapper>
-      <RecipeCard onClick={() => {}}>
-        <CardImage
-          source={{
-            uri:
-              'https://brands-a.prod.onewp.net/app/uploads/sites/4/2018/09/Pizzaboller.jpg',
-          }}
-          style={{ width: 400, height: 400 }}
-        />
-        <CardTitle>{recipes[0].name}</CardTitle>
-      </RecipeCard>
-      <RecipeCard onClick={() => {}}>
-        <CardImage
-          source={{ uri: recipes[0].content[0].imageUrl }}
-          style={{ width: 400, height: 400 }}
-        />
-        <CardTitle>{recipes[1].name}</CardTitle>
-      </RecipeCard>
-      <RecipeCard onClick={() => {}}>
-        <CardImage
-          source={{
-            uri:
-              'https://brands-a.prod.onewp.net/app/uploads/sites/4/2018/09/Pizzaboller.jpg',
-          }}
-          style={{ width: 400, height: 400 }}
-        />
-        <CardTitle>{recipes[1].name}</CardTitle>
-      </RecipeCard>
-      <RecipeCard onClick={() => {}}>
-        <CardImage
-          source={{
-            uri:
-              'https://brands-a.prod.onewp.net/app/uploads/sites/4/2018/09/Pizzaboller.jpg',
-          }}
-          style={{ width: 400, height: 400 }}
-        />
-        <CardTitle>{recipes[1].name}</CardTitle>
-      </RecipeCard>
+      {data != undefined ? (
+        <FlatList
+          data={data.recipes}
+          renderItem={({ item }) => (
+            <RecipeCard onClick={() => {}}>
+              <CardImage
+                source={{
+                  uri: item.Image,
+                }}
+                style={{ width: 400, height: 400 }}
+              />
+              <CardTitle>{item.Name}</CardTitle>
+            </RecipeCard>
+          )}
+          keyExtractor={recipe => recipe.ID}
+        ></FlatList>
+      ) : (
+        <CardTitle>Undefined</CardTitle>
+      )}
     </Wrapper>
   )
 }
