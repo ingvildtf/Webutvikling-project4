@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components/native'
-import { FlatList } from 'react-native'
+import { FlatList, Modal, Alert } from 'react-native'
 import { gql, useQuery } from '@apollo/client'
 
 import {
@@ -55,9 +55,31 @@ const CardRatingWrapper = styled.View<RecipeCardProps>`
   align-items: center;
   padding: 0 1px 1px 1px;
 `
+const CenterdView = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  margin-top: 22px;
+`
+
+const ModalView = styled.View`
+  margin: 20px;
+  background-color: white;
+  border-radius: 20px;
+  padding: 35px;
+  align-items: center;
+`
+
+const OpenButton = styled.TouchableHighlight`
+  background-color: #f194ff;
+  border-radius: 20px;
+  padding: 10px;
+`
 
 //Fetching data from backend by using Apollo Client
 const RecipeDisplay = () => {
+  const [modalVisible, setModalVisible] = useState(false)
+
   const { data, loading, error } = useQuery<
     RecipeInterfaceData,
     RecipesInterfaceVars
@@ -86,14 +108,24 @@ const RecipeDisplay = () => {
         <FlatList
           data={data.recipes}
           renderItem={({ item }) => (
-            <RecipeCard onClick={() => {}}>
+            <RecipeCard
+              onPress={() => {
+                setModalVisible(true)
+              }}
+            >
               <CardImage
                 source={{
                   uri: item.Image,
                 }}
                 style={{ width: 400, height: 400 }}
               />
-              <CardTitle>{item.Name}</CardTitle>
+              <OpenButton
+                onPress={() => {
+                  setModalVisible(true)
+                }}
+              >
+                <CardTitle>{item.Name}</CardTitle>
+              </OpenButton>
             </RecipeCard>
           )}
           keyExtractor={recipe => recipe.ID}
@@ -101,6 +133,28 @@ const RecipeDisplay = () => {
       ) : (
         <CardTitle>Undefined</CardTitle>
       )}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.')
+        }}
+      >
+        <CenterdView>
+          <ModalView>
+            <CardTitle>Hello World!</CardTitle>
+
+            <OpenButton
+              onPress={() => {
+                setModalVisible(!modalVisible)
+              }}
+            >
+              <CardTitle>Hide Modal</CardTitle>
+            </OpenButton>
+          </ModalView>
+        </CenterdView>
+      </Modal>
     </Wrapper>
   )
 }
