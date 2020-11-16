@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import styled from 'styled-components/native'
 import { FlatList } from 'react-native'
-import { gql, useQuery } from '@apollo/client'
+import { DocumentNode, gql, useQuery } from '@apollo/client'
 import { useSelector, useDispatch } from 'react-redux'
 
-import AppState from '../redux/store/store'
+import { AppState } from '../redux/store/store'
 import {
   GET_RECIPE_QUERY,
   RecipesInterfaceVars,
@@ -70,15 +70,7 @@ const CardRatingWrapper = styled.View<RecipeCardProps>`
   padding: 0 1px 1px 1px;
 `
 
-//Fetching data from backend by using Apollo Client
 const RecipeDisplay = () => {
-  const { data, loading, error } = useQuery<
-    RecipeInterfaceData,
-    RecipesInterfaceVars
-  >(GET_RECIPE_QUERY, {
-    variables: { offset: 0, limit: 15, sortDecending: -1 },
-  })
-
   const [activeRecipe, setActiveRecipe] = useState()
   /*
  useEffect(() => {
@@ -86,34 +78,38 @@ const RecipeDisplay = () => {
  }, [activeRecipe])
  */
 
-  const query = useSelector<recipeState>(state => state.query)
-  const sortDecending = useSelector<recipeState>(state => state.sortDecending)
-  const searchField = useSelector<recipeState>(state => state.search)
-  const pageOffset = useSelector<pageState>(state => state.pageOffset)
-  const pageSize = useSelector<pageState>(state => state.pageSize)
-  const pageNumber = useSelector<pageState>(state => state.pageNumber)
+  //Fetching data from global storage with redux
+  const query = useSelector<AppState, DocumentNode>(
+    state => state.recipesReducer.query
+  )
+  const sortDecending = useSelector<AppState, boolean>(
+    state => state.recipesReducer.sortDecending
+  )
+  const searchField = useSelector<AppState, String>(
+    state => state.recipesReducer.search
+  )
+  const pageOffset = useSelector<AppState, number>(
+    state => state.pageReducer.pageOffset
+  )
+  const pageSize = useSelector<AppState, number>(
+    state => state.pageReducer.pageSize
+  )
+  const pageNumber = useSelector<AppState, number>(
+    state => state.pageReducer.pageNumber
+  )
   const dispatch = useDispatch()
+
+  //Fetching data from backend by using Apollo Client
+  const { data, loading, error } = useQuery<
+    RecipeInterfaceData,
+    RecipesInterfaceVars
+  >(query, {
+    variables: { offset: 0, limit: 15, sortDecending: -1 },
+  })
 
   const activateRecipe = (recipe: any) => {
     setActiveRecipe(recipe)
     dispatch(addRating(recipe.ID))
-  }
-
-  const queryName = (query: any) => {
-    switch (query) {
-      case GET_RECIPE_QUERY:
-        return Object(state.recipes)
-      case GET_DINNER_RECIPES:
-        return Object(data.dinner)
-      case GET_BREAKFAST_RECIPES:
-        return Object(data.breakfast)
-      case GET_DESSERT_RECIPES:
-        return Object(data.dessert)
-      case SEARCH_RECIPES:
-        return Object(data.searchRecipes)
-      default:
-        return Object(data.recipes)
-    }
   }
 
   return (
@@ -122,7 +118,7 @@ const RecipeDisplay = () => {
         <FlatList
           data={data.recipes}
           renderItem={({ item }) => (
-            <RecipeCard onClick={() => {}}>
+            <RecipeCard>
               <CardImage
                 source={{
                   uri: item.Image,

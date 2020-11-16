@@ -2,7 +2,9 @@ import React from 'react'
 import { NativeRouter, Route } from 'react-router-native'
 import styled from 'styled-components/native'
 import { ApolloProvider } from '@apollo/client'
+import { Provider } from 'react-redux'
 
+import store from './src/redux/store/store'
 import Recipes from './src/components/Recipes'
 import client from './src/initApollo'
 
@@ -27,14 +29,16 @@ const Title = styled.Text`
 //Our app is implemented with Router for react native
 function App() {
   return (
-    <ApolloProvider client={client}>
-      <Wrapper>
-        <Title>A RECIPE FOR SUCCESS</Title>
-        <NativeRouter>
-          <Route exact path="/" component={Recipes} />
-        </NativeRouter>
-      </Wrapper>
-    </ApolloProvider>
+    <Provider store={store}>
+      <ApolloProvider client={client}>
+        <Wrapper>
+          <Title>A RECIPE FOR SUCCESS</Title>
+          <NativeRouter>
+            <Route exact path="/" component={Recipes} />
+          </NativeRouter>
+        </Wrapper>
+      </ApolloProvider>
+    </Provider>
   )
 }
 

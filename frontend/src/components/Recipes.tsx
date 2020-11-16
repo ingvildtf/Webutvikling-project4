@@ -134,11 +134,8 @@ const Recipes: React.FunctionComponent = () => {
   return (
     <Wrapper>
       <SearchBarWrapper>
-        <StyledSearchBar
-          onKeyDown={() => {}}
-          placeholder="What would you like?"
-        />
-        <Button type="submit" onClick={() => {}}>
+        <StyledSearchBar placeholder="What would you like?" />
+        <Button>
           <StyledText>SEARCH</StyledText>
         </Button>
       </SearchBarWrapper>
