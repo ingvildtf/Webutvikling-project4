@@ -52,33 +52,7 @@ const CardRatingWrapper = styled.View<RecipeCardProps>`
   padding: 0 1px 1px 1px;
 `
 
-//Test-kode
-const recipes = [
-  {
-    name: 'Pizzabolle',
-    content: [
-      {
-        imageUrl:
-          'https://brands-a.prod.onewp.net/app/uploads/sites/4/2018/09/Pizzaboller.jpg',
-        time: '1 hour',
-        description: 'Not healthy, but good as hell.',
-      },
-    ],
-  },
-  {
-    name: 'Tomatsuppe',
-    content: [
-      {
-        imageUrl:
-          'https://idagranjansen.com/wp-content/uploads/tomatsuppe__p2b6663.jpg',
-        time: '2 hours',
-        description: 'This is the perfect dish.',
-      },
-    ],
-  },
-]
-
-//Interface for typescript use with Apollog client and graphql
+//Interface for typescript use with Apollo client and graphql
 interface RecipesInterface {
   ID: string
   Name: string
@@ -127,50 +101,22 @@ const RecipeDisplay = () => {
       {data != undefined ? (
         <FlatList
           data={data.recipes}
-          renderItem={({ item }) => <CardTitle>{item.Name}</CardTitle>}
+          renderItem={({ item }) => (
+            <RecipeCard onClick={() => {}}>
+              <CardImage
+                source={{
+                  uri: item.Image,
+                }}
+                style={{ width: 400, height: 400 }}
+              />
+              <CardTitle>{item.Name}</CardTitle>
+            </RecipeCard>
+          )}
           keyExtractor={recipe => recipe.ID}
         ></FlatList>
       ) : (
         <CardTitle>Undefined</CardTitle>
       )}
-
-      <RecipeCard onClick={() => {}}>
-        <CardImage
-          source={{
-            uri:
-              'https://brands-a.prod.onewp.net/app/uploads/sites/4/2018/09/Pizzaboller.jpg',
-          }}
-          style={{ width: 400, height: 400 }}
-        />
-        <CardTitle>{recipes[0].name}</CardTitle>
-      </RecipeCard>
-      <RecipeCard onClick={() => {}}>
-        <CardImage
-          source={{ uri: recipes[0].content[0].imageUrl }}
-          style={{ width: 400, height: 400 }}
-        />
-        <CardTitle>{recipes[1].name}</CardTitle>
-      </RecipeCard>
-      <RecipeCard onClick={() => {}}>
-        <CardImage
-          source={{
-            uri:
-              'https://brands-a.prod.onewp.net/app/uploads/sites/4/2018/09/Pizzaboller.jpg',
-          }}
-          style={{ width: 400, height: 400 }}
-        />
-        <CardTitle>{recipes[1].name}</CardTitle>
-      </RecipeCard>
-      <RecipeCard onClick={() => {}}>
-        <CardImage
-          source={{
-            uri:
-              'https://brands-a.prod.onewp.net/app/uploads/sites/4/2018/09/Pizzaboller.jpg',
-          }}
-          style={{ width: 400, height: 400 }}
-        />
-        <CardTitle>{recipes[1].name}</CardTitle>
-      </RecipeCard>
     </Wrapper>
   )
 }
