@@ -11,7 +11,6 @@ export interface RecipesInterface {
   Review: number | undefined | null[]
 }
 
-
 export interface RecipeInterfaceData {
   recipes: RecipesInterface[]
 }

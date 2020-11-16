@@ -1,9 +1,24 @@
 import * as React from 'react'
+import { useState } from 'react'
 import styled from 'styled-components/native'
 import { CheckBox } from 'react-native-elements'
 import { Image } from 'react-native'
+import { useSelector, useDispatch } from 'react-redux'
+
+import recipeReducer, { recipeState } from '../redux/reducers/recipeReducer'
+import reviewReducer, { reviewState } from '../redux/reducers/reviewReducer'
+import pageReducer, { pageState } from '../redux/reducers/pageReducer'
 
 import RecipeDisplay from './RecipeDisplay'
+import { resetThePage } from '../redux/actions/pageAction'
+import {
+  fetchAllTheRecipes,
+  fetchTheDinnerRecipes,
+  fetchTheBreakfastRecipes,
+  fetchTheDessertRecipes,
+  filterTheRecipes,
+  sortItDecending,
+} from '../redux/actions/recipeAction'
 
 const Wrapper = styled.View`
   margin: 1%;
@@ -56,6 +71,66 @@ const Recipe = styled.View`
 `
 
 const Recipes: React.FunctionComponent = () => {
+  const [dinnerActiveRecipe, setActiveDinner] = useState(false)
+  const [breafastActiveRecipe, setActiveBreakfast] = useState(false)
+  const [dessertActiveRecipe, setActiveDessert] = useState(false)
+  const dispatch = useDispatch()
+
+  const decendingSort = useSelector<recipeState>(state => state.sortDecending)
+
+  //Handling search-input
+  let search = ''
+  const filteredByInput = (e: React.KeyboardEvent) => {
+    console.log(e.key)
+    if (e.key.length < 2) {
+      search += e.key
+    }
+    if (e.key === 'Backspace') {
+      let word = search
+      search = ''
+      for (let i = 0; i < word.length - 1; i++) {
+        search += word.charAt(i)
+      }
+    }
+    console.log(search)
+  }
+
+  //Handling checbox-input, displaying active categories
+  const onClick = (action: any) => {
+    switch (action) {
+      case 'dinner':
+        dispatch(resetThePage())
+        dispatch(fetchTheDinnerRecipes())
+        setActiveDinner(true)
+        setActiveBreakfast(false)
+        setActiveDessert(false)
+        return
+      case 'breakfast':
+        dispatch(resetThePage())
+        dispatch(fetchTheBreakfastRecipes())
+        setActiveDinner(false)
+        setActiveBreakfast(true)
+        setActiveDessert(false)
+        return
+      case 'dessert':
+        dispatch(resetThePage())
+        dispatch(fetchTheDessertRecipes())
+        setActiveDinner(false)
+        setActiveBreakfast(false)
+        setActiveDessert(true)
+        return
+      case 'allRecipes':
+        dispatch(resetThePage())
+        dispatch(fetchAllTheRecipes())
+        setActiveDinner(false)
+        setActiveBreakfast(false)
+        setActiveDessert(false)
+        return
+      default:
+        return
+    }
+  }
+
   return (
     <Wrapper>
       <SearchBarWrapper>
