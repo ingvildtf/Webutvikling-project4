@@ -13,12 +13,14 @@ import {
     GET_BREAKFAST_RECIPES,
     GET_DESSERT_RECIPES,
     SEARCH_RECIPES,
-  } from '../../../queries'
+    RecipeInterfaceData
+  } from '../../queries'
+import { DocumentNode } from 'graphql'
 
 
 
 export interface recipeState {
-    query: WebGLQuery //FEIl
+    query: DocumentNode
     search: String
     activeRecipe: String
     sortDecending: boolean

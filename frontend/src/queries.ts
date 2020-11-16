@@ -1,5 +1,29 @@
 import { gql } from '@apollo/client'
 
+//Interface for typescript use with Apollo client and graphql
+export interface RecipesInterface {
+  ID: string
+  Name: string
+  Category: string
+  Instruction: string
+  Ingredients: string
+  Image: string
+  Review: number | undefined | null[]
+}
+
+
+export interface RecipeInterfaceData {
+  recipes: RecipesInterface[]
+}
+
+export interface RecipesInterfaceVars {
+  offset: number
+  limit: number
+  sortDecending: number
+}
+
+//graphql queries using Apollo client
+
 export const GET_RECIPE_QUERY = gql`
   query Recipes($offset: Int, $limit: Int, $sortDecending: Int) {
     recipes(limit: $limit, offset: $offset, sortDecending: $sortDecending) {
