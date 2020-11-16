@@ -3,7 +3,11 @@ import styled from 'styled-components/native'
 import { FlatList } from 'react-native'
 import { gql, useQuery } from '@apollo/client'
 
-import { GET_RECIPE_QUERY } from '../queries'
+import {
+  GET_RECIPE_QUERY,
+  RecipesInterfaceVars,
+  RecipeInterfaceData,
+} from '../queries'
 
 //Styling using styled components
 export const Wrapper = styled.View`
@@ -51,26 +55,6 @@ const CardRatingWrapper = styled.View<RecipeCardProps>`
   align-items: center;
   padding: 0 1px 1px 1px;
 `
-
-//Interface for typescript use with Apollo client and graphql
-interface RecipesInterface {
-  ID: string
-  Name: string
-  Category: string
-  Instruction: string
-  Ingredients: string
-  Image: string
-  Review: number | undefined | null[]
-}
-interface RecipeInterfaceData {
-  recipes: RecipesInterface[]
-}
-
-interface RecipesInterfaceVars {
-  offset: number
-  limit: number
-  sortDecending: number
-}
 
 //Fetching data from backend by using Apollo Client
 const RecipeDisplay = () => {
