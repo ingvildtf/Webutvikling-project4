@@ -41,9 +41,9 @@ interface RecipeCardProps {
 }
 
 const RecipeCard = styled.TouchableOpacity<RecipeCardProps>`
-  width: 49%;
+  width: 100%;
   margin: 2px 0.5px 0 0;
-  background-color: #eff1ee;
+  background-color: white;
   font-size: 14px;
   text-align: center;
 `
@@ -63,6 +63,8 @@ const CardTitle = styled.Text<RecipeCardProps>`
   justify-content: center;
   align-items: center;
   padding: 0 1px 0 1px;
+  color: #3c4560;
+  font-weight: 600;
 `
 
 const CardRatingWrapper = styled.View<RecipeCardProps>`
@@ -74,6 +76,37 @@ const CardRatingWrapper = styled.View<RecipeCardProps>`
 
 const Container = styled.View`
   padding: 2%;
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+`
+
+//Card style
+const CardContainer = styled.View<RecipeCardProps>`
+  background: #fff;
+  height: 200px;
+  width: 150px;
+  border-radius: 14px;
+  margin: 18px;
+  margin-top: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+`
+
+const CardCover = styled.View<RecipeCardProps>`
+  display: flex;
+  width: 100%;
+  height: 120px;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  overflow: hidden;
+`
+
+const CardContent = styled.View<RecipeCardProps>`
+  display: flex;
+  padding-top: 10px;
+  flex-direction: column;
+  align-items: center;
+  height: 60px;
 `
 
 //Modal style
@@ -133,7 +166,7 @@ export const Picture = styled.Image`
 `
 
 export const Content = styled.View`
-  width:100%;
+  width: 100%;
   padding: 3%;
   overflow: hidden;
   background-color: #f2f2f2;
@@ -192,8 +225,6 @@ const RecipeDisplay = () => {
   )
   const dispatch = useDispatch()
 
-  console.log(pageSize)
-
   //Fetching data from backend by using Apollo Client
   const { data, loading, error } = useQuery<
     RecipeInterfaceData,
@@ -230,13 +261,19 @@ const RecipeDisplay = () => {
                     activateRecipe(item)
                   }}
                 >
-                  <CardImage
-                    source={{
-                      uri: item.Image,
-                    }}
-                    style={{ width: 400, height: 400 }}
-                  />
-                  <CardTitle>{item.Name}</CardTitle>
+                  <CardContainer>
+                    <CardCover>
+                      <CardImage
+                        source={{
+                          uri: item.Image,
+                        }}
+                        style={{ width: 150, height: 150 }}
+                      />
+                    </CardCover>
+                    <CardContent>
+                      <CardTitle>{item.Name}</CardTitle>
+                    </CardContent>
+                  </CardContainer>
                 </RecipeCard>
               )}
               keyExtractor={recipe => recipe.ID}
