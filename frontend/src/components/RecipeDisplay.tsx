@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
 import styled from 'styled-components/native'
-import { FlatList, Modal, Alert } from 'react-native'
-import { DocumentNode, gql, useQuery } from '@apollo/client'
-import { useSelector, useDispatch } from 'react-redux'
+import { FlatList, Modal, Alert, View } from 'react-native'
+import { DocumentNode, useQuery } from '@apollo/client'
+import { useSelector } from 'react-redux'
+import { ScrollView } from 'react-native-gesture-handler'
 
 import { AppState } from '../redux/store/store'
 import {
@@ -20,15 +21,6 @@ import {
   DessertRecipesInterface,
   SearchRecipesInterface,
 } from '../queries'
-import { ScrollView } from 'react-native-gesture-handler'
-
-import { resetThePage } from '../redux/actions/pageAction'
-import recipeReducer, { recipeState } from '../redux/reducers/recipeReducer'
-import reviewReducer, { reviewState } from '../redux/reducers/reviewReducer'
-import pageReducer, { pageState } from '../redux/reducers/pageReducer'
-import { startsWith } from 'cypress/types/lodash'
-import { addRating } from '../redux/actions/reviewAction'
-import { incrementThePage } from '../redux/actions/pageAction'
 
 //Styling using styled components
 export const Wrapper = styled.View`
@@ -202,7 +194,6 @@ const RecipeDisplay = () => {
   const activateRecipe = (recipe: RecipesInterface) => {
     setModalVisible(true)
     setActiveRecipe(recipe)
-    //dispatch(addRating(recipe.ID))
   }
 
   //Fetching data from global storage with redux
@@ -222,20 +213,16 @@ const RecipeDisplay = () => {
   const pageSize = useSelector<AppState, number>(
     state => state.pageReducer.pageSize
   )
-  const pageNumber = useSelector<AppState, number>(
-    state => state.pageReducer.pageNumber
-  )
-  const dispatch = useDispatch()
 
   //Fetching data from backend by using Apollo Client
-  const { data, loading, error } = useQuery<
+  const { data, loading, error, fetchMore } = useQuery<
     RecipeInterfaceData,
     RecipesInterfaceVars
   >(query, {
     variables: {
       matchedString: searchField,
-      offset: 0,
-      limit: 15,
+      offset: pageOffset,
+      limit: pageSize,
       sortDecending: sortDecending ? -1 : 1,
     },
   })
@@ -253,6 +240,62 @@ const RecipeDisplay = () => {
         <CardTitle>Error!</CardTitle>
       </CardRatingWrapper>
     )
+  }
+
+  //Pagination, fetches more recipes from database
+  const fetchMoreRecipes = () => {
+    data != undefined
+      ? fetchMore({
+          variables: {
+            offset: queryName(query).length + 1,
+            limit: pageSize,
+            sortDecending: sortDecending ? -1 : 1,
+          },
+          updateQuery: (prev, { fetchMoreResult }) => {
+            if (!fetchMoreResult) {
+              return prev
+            }
+            switch (query) {
+              case GET_RECIPE_QUERY:
+                return {
+                  recipes: (prev as AllRecipesInterface).recipes.concat(
+                    (fetchMoreResult as AllRecipesInterface).recipes
+                  ),
+                }
+              case GET_DINNER_RECIPES:
+                return {
+                  dinner: (prev as DinnerRecipesInterface).dinner.concat(
+                    (fetchMoreResult as DinnerRecipesInterface).dinner
+                  ),
+                }
+              case GET_BREAKFAST_RECIPES:
+                return {
+                  breakfast: (prev as BreakfastRecipesInterface).breakfast.concat(
+                    (fetchMoreResult as BreakfastRecipesInterface).breakfast
+                  ),
+                }
+              case GET_DESSERT_RECIPES:
+                return {
+                  dessert: (prev as DessertRecipesInterface).dessert.concat(
+                    (fetchMoreResult as DessertRecipesInterface).dessert
+                  ),
+                }
+              case SEARCH_RECIPES:
+                return {
+                  searchRecipes: (prev as SearchRecipesInterface).searchRecipes.concat(
+                    (fetchMoreResult as SearchRecipesInterface).searchRecipes
+                  ),
+                }
+              default:
+                return {
+                  recipes: (prev as AllRecipesInterface).recipes.concat(
+                    (fetchMoreResult as AllRecipesInterface).recipes
+                  ),
+                }
+            }
+          },
+        })
+      : null
   }
 
   //Helper funciton to fetch the right queryName from graphql
@@ -276,38 +319,41 @@ const RecipeDisplay = () => {
   return (
     <Wrapper>
       <Container>
-        <ScrollView horizontal={false} showsHorizontalScrollIndicator={false}>
-          {data != undefined ? (
-            <FlatList
-              data={queryName(query)}
-              numColumns={2}
-              renderItem={({ item }) => (
-                <RecipeCard
-                  onPress={() => {
-                    activateRecipe(item)
-                  }}
-                >
-                  <CardContainer>
-                    <CardCover>
-                      <CardImage
-                        source={{
-                          uri: item.Image,
-                        }}
-                        style={{ width: 150, height: 150 }}
-                      />
-                    </CardCover>
-                    <CardContent>
-                      <CardTitle>{item.Name}</CardTitle>
-                    </CardContent>
-                  </CardContainer>
-                </RecipeCard>
-              )}
-              keyExtractor={recipe => recipe.ID}
-            ></FlatList>
-          ) : (
+        {data != undefined ? (
+          <FlatList
+            data={queryName(query)}
+            numColumns={2}
+            renderItem={({ item }) => (
+              <RecipeCard
+                onPress={() => {
+                  activateRecipe(item)
+                }}
+              >
+                <CardContainer>
+                  <CardCover>
+                    <CardImage
+                      source={{
+                        uri: item.Image,
+                      }}
+                      style={{ width: 150, height: 150 }}
+                    />
+                  </CardCover>
+                  <CardContent>
+                    <CardTitle>{item.Name}</CardTitle>
+                  </CardContent>
+                </CardContainer>
+              </RecipeCard>
+            )}
+            keyExtractor={recipe => recipe.ID}
+            onEndReached={fetchMoreRecipes}
+            onEndReachedThreshold={0.5}
+            indicatorStyle={'black'}
+          />
+        ) : (
+          <View>
             <CardTitle>Undefined</CardTitle>
-          )}
-        </ScrollView>
+          </View>
+        )}
       </Container>
       <Modal
         animationType="fade"

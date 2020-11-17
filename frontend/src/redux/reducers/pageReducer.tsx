@@ -21,7 +21,7 @@ export default function pageReducer(
     case INCREMENT_PAGE:
       return {
         ...state,
-        pageOffset: state.pageOffset + state.pageSize,
+        pageOffset: state.pageNumber * state.pageSize,
         pageNumber: state.pageNumber + 1,
       }
     case RESET_PAGE:
