@@ -11,21 +11,10 @@ import { ActionTypes } from '../actions/types'
 //ReturnType grabs the return type of whats in the parameter
 export type AppState = ReturnType<typeof rootReducer>
 
-/*
-Bruk dette i på de forskjellige sidene. OBS! husk at den må importeres
-(import AppState fomr '..noe/store')
-
-/*
-const store: Store<AppState, ActionTypes> & {
-  dispatch: ActionTypes
-} = createStore(rootReducer, applyMiddleware(thunk))
-*/
-
+//initialiserer global store til å inneholde de forskjellige reducerne
 const store = createStore(
   rootReducer,
   applyMiddleware(thunk as ThunkMiddleware<AppState, ActionTypes>)
 )
-//const store = createStore(rootReducer, applyMiddleware())
-//Må det egt bruke thunk? eller promise?
 
 export default store
