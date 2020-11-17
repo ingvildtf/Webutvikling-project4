@@ -144,18 +144,15 @@ const Recipes: React.FunctionComponent = () => {
     }
   }
 
+  // onChangeText={e => filteredByInput(e)}
   return (
     <Wrapper>
       <SearchBarWrapper>
-        <StyledSearchBar
-          onChangeText={e => filteredByInput(e)}
-          placeholder="What would you like?"
-        />
+        <StyledSearchBar placeholder="What would you like?" />
         <Button onPress={() => searchHandler()}>
           <StyledText>SEARCH</StyledText>
         </Button>
       </SearchBarWrapper>
-
       <Categories>
         <CheckBox
           center
@@ -182,7 +179,6 @@ const Recipes: React.FunctionComponent = () => {
           checkedColor="#607878"
         />
       </Categories>
-
       <Recipe>
         <RecipeDisplay />
       </Recipe>

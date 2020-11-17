@@ -28,7 +28,7 @@ const initialState: recipeState = {
   query: GET_RECIPE_QUERY,
   search: '',
   activeRecipe: '',
-  sortDecending: false,
+  sortDecending: true,
 }
 
 export default function recipeReducer(

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components/native'
-import { FlatList } from 'react-native'
+import { FlatList, Modal, Alert } from 'react-native'
 import { DocumentNode, gql, useQuery } from '@apollo/client'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -9,11 +9,13 @@ import {
   GET_RECIPE_QUERY,
   RecipesInterfaceVars,
   RecipeInterfaceData,
+  RecipesInterface,
   GET_DINNER_RECIPES,
   GET_BREAKFAST_RECIPES,
   GET_DESSERT_RECIPES,
   SEARCH_RECIPES,
 } from '../queries'
+import { ScrollView } from 'react-native-gesture-handler'
 
 import { resetThePage } from '../redux/actions/pageAction'
 import recipeReducer, { recipeState } from '../redux/reducers/recipeReducer'
@@ -38,7 +40,7 @@ interface RecipeCardProps {
   className?: string
 }
 
-const RecipeCard = styled.View<RecipeCardProps>`
+const RecipeCard = styled.TouchableOpacity<RecipeCardProps>`
   width: 49%;
   margin: 2px 0.5px 0 0;
   background-color: #eff1ee;
@@ -69,13 +71,102 @@ const CardRatingWrapper = styled.View<RecipeCardProps>`
   align-items: center;
   padding: 0 1px 1px 1px;
 `
+const Container = styled.View`
+  padding: 2%;
+`
+
+//Modal style
+const CenterdView = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  margin-top: 22px;
+`
+
+const ModalView = styled.View`
+  margin: 20px;
+  background-color: white;
+  border-radius: 10px;
+  padding: 0px;
+  align-items: center;
+  height: 70%;
+  width: 90%;
+  overflow: scroll;
+`
+
+const OpenButton = styled.TouchableHighlight`
+  background-color: #f194ff;
+  border-radius: 20px;
+  padding: 10px;
+`
+
+const Header = styled.View`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #afc9be;
+`
+
+const ModalTitle = styled.Text`
+  color: white;
+  font-size: 18px;
+`
+
+const CloseButton = styled.TouchableHighlight`
+  border: none;
+  border-radius: 3px;
+  margin-left: 0.5px;
+
+  :hover {
+    cursor: pointer;
+  }
+`
+const CloseText = styled.Text`
+  color: white;
+  font-size: 18px;
+`
+
+export const Picture = styled.Image`
+  width: 90%;
+  height: 40%;
+  padding: 5%;
+  background-color: #f2f2f2;
+`
+
+export const Content = styled.View`
+  padding: 5%;
+  overflow: hidden;
+  background-color: #f2f2f2;
+  color: black;
+  display: flex;
+  align-items: center;
+`
+
+export const Recipe = styled.View`
+  padding: 5%;
+  background-color: #f2f2f2;
+  color: black;
+  overflow: hidden;
+`
+const ModalText = styled.Text`
+  font-size: 18px;
+  color: black;
+`
 
 const RecipeDisplay = () => {
-  const [activeRecipe, setActiveRecipe] = useState()
-  const activateRecipe = (recipe: any) => {
+  const [modalVisible, setModalVisible] = useState(false)
+
+  const [activeRecipe, setActiveRecipe] = useState<RecipesInterface>()
+
+  const activateRecipe = (recipe: RecipesInterface) => {
+    setModalVisible(true)
     setActiveRecipe(recipe)
-    dispatch(addRating(recipe.ID))
+    //dispatch(addRating(recipe.ID))
   }
+
   /*
  useEffect(() => {
    if (activeRecipe !== undefined) openModal()
@@ -113,30 +204,88 @@ const RecipeDisplay = () => {
     variables: { offset: 0, limit: 15, sortDecending: -1 },
   })
 
-  if (loading) return <CardRatingWrapper>Loading...</CardRatingWrapper>
-  if (error) return <CardRatingWrapper>Error!</CardRatingWrapper>
+  if (loading)
+    return (
+      <CardRatingWrapper>
+        <CardTitle>Loading...</CardTitle>
+      </CardRatingWrapper>
+    )
+  if (error) {
+    console.log(error)
+    return (
+      <CardRatingWrapper>
+        <CardTitle>Error!</CardTitle>
+      </CardRatingWrapper>
+    )
+  }
 
   return (
     <Wrapper>
-      {data != undefined ? (
-        <FlatList
-          data={data.recipes}
-          renderItem={({ item }) => (
-            <RecipeCard>
-              <CardImage
-                source={{
-                  uri: item.Image,
-                }}
-                style={{ width: 400, height: 400 }}
-              />
-              <CardTitle>{item.Name}</CardTitle>
-            </RecipeCard>
+      <Container>
+        <ScrollView horizontal={false} showsHorizontalScrollIndicator={false}>
+          {data != undefined ? (
+            <FlatList
+              data={data.recipes}
+              renderItem={({ item }) => (
+                <RecipeCard
+                  onPress={() => {
+                    activateRecipe(item)
+                  }}
+                >
+                  <CardImage
+                    source={{
+                      uri: item.Image,
+                    }}
+                    style={{ width: 400, height: 400 }}
+                  />
+                  <CardTitle>{item.Name}</CardTitle>
+                </RecipeCard>
+              )}
+              keyExtractor={recipe => recipe.ID}
+            ></FlatList>
+          ) : (
+            <CardTitle>Undefined</CardTitle>
           )}
-          keyExtractor={recipe => recipe.ID}
-        ></FlatList>
-      ) : (
-        <CardTitle>Undefined</CardTitle>
-      )}
+        </ScrollView>
+      </Container>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.')
+        }}
+      >
+        {activeRecipe && (
+          <CenterdView>
+            <ModalView>
+              <Header>
+                <ModalTitle>{activeRecipe!.Name}</ModalTitle>
+                <CloseButton
+                  onPress={() => {
+                    setModalVisible(!modalVisible)
+                  }}
+                >
+                  <CloseText>X</CloseText>
+                </CloseButton>
+              </Header>
+              <Picture
+                source={{
+                  uri: activeRecipe!.Image,
+                }}
+              />
+              <ScrollView horizontal={false}>
+                <Content>
+                  <ModalText>{activeRecipe!.Ingredients.split(',')}</ModalText>
+                </Content>
+                <Recipe>
+                  <ModalText>{activeRecipe!.Instruction}</ModalText>
+                </Recipe>
+              </ScrollView>
+            </ModalView>
+          </CenterdView>
+        )}
+      </Modal>
     </Wrapper>
   )
 }
