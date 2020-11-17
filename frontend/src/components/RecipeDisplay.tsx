@@ -14,6 +14,11 @@ import {
   GET_BREAKFAST_RECIPES,
   GET_DESSERT_RECIPES,
   SEARCH_RECIPES,
+  AllRecipesInterface,
+  DinnerRecipesInterface,
+  BreakfastRecipesInterface,
+  DessertRecipesInterface,
+  SearchRecipesInterface,
 } from '../queries'
 import { ScrollView } from 'react-native-gesture-handler'
 
@@ -147,7 +152,7 @@ const ModalTitle = styled.Text`
 `
 
 const CloseButton = styled.TouchableHighlight`
-  width: 5%;
+  width: 15%;
   border-radius: 3px;
   margin-left: 0.5px;
 `
@@ -188,24 +193,20 @@ const ModalText = styled.Text`
 `
 
 const RecipeDisplay = () => {
+  //local state to handle if the modal should be visible or not
   const [modalVisible, setModalVisible] = useState(false)
-
+  //local state to handle choosen recipe
   const [activeRecipe, setActiveRecipe] = useState<RecipesInterface>()
 
+  //helper function for when a recipe i clicked, sets active recipe to be the recipe that is choosen and activates the modal
   const activateRecipe = (recipe: RecipesInterface) => {
     setModalVisible(true)
     setActiveRecipe(recipe)
     //dispatch(addRating(recipe.ID))
   }
 
-  /*
- useEffect(() => {
-   if (activeRecipe !== undefined) openModal()
- }, [activeRecipe])
- */
-
   //Fetching data from global storage with redux
-  const query = useSelector<AppState, DocumentNode>(
+  let query = useSelector<AppState, DocumentNode>(
     state => state.recipesReducer.query
   )
   const sortDecending = useSelector<AppState, boolean>(
@@ -214,6 +215,7 @@ const RecipeDisplay = () => {
   const searchField = useSelector<AppState, String>(
     state => state.recipesReducer.search
   )
+  console.log(searchField)
   const pageOffset = useSelector<AppState, number>(
     state => state.pageReducer.pageOffset
   )
@@ -230,7 +232,12 @@ const RecipeDisplay = () => {
     RecipeInterfaceData,
     RecipesInterfaceVars
   >(query, {
-    variables: { offset: 0, limit: 15, sortDecending: 1 },
+    variables: {
+      matchedString: searchField,
+      offset: 0,
+      limit: 15,
+      sortDecending: sortDecending ? -1 : 1,
+    },
   })
 
   if (loading)
@@ -248,13 +255,31 @@ const RecipeDisplay = () => {
     )
   }
 
+  //Helper funciton to fetch the right queryName from graphql
+  const queryName = (query: DocumentNode) => {
+    switch (query) {
+      case GET_RECIPE_QUERY:
+        return Object((data as AllRecipesInterface).recipes)
+      case GET_DINNER_RECIPES:
+        return Object((data as DinnerRecipesInterface).dinner)
+      case GET_BREAKFAST_RECIPES:
+        return Object((data as BreakfastRecipesInterface).breakfast)
+      case GET_DESSERT_RECIPES:
+        return Object((data as DessertRecipesInterface).dessert)
+      case SEARCH_RECIPES:
+        return Object((data as SearchRecipesInterface).searchRecipes)
+      default:
+        return Object((data as AllRecipesInterface).recipes)
+    }
+  }
+
   return (
     <Wrapper>
       <Container>
         <ScrollView horizontal={false} showsHorizontalScrollIndicator={false}>
           {data != undefined ? (
             <FlatList
-              data={data.recipes}
+              data={queryName(query)}
               numColumns={2}
               renderItem={({ item }) => (
                 <RecipeCard
@@ -312,7 +337,7 @@ const RecipeDisplay = () => {
               />
               <ScrollView horizontal={false}>
                 <Content>
-                  <ModalText>{activeRecipe!.Ingredients.split(',')}</ModalText>
+                  <ModalText>{activeRecipe!.Ingredients}</ModalText>
                 </Content>
                 <Recipe>
                   <ModalText>{activeRecipe!.Instruction}</ModalText>

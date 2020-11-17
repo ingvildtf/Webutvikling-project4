@@ -11,18 +11,38 @@ export interface RecipesInterface {
   Review: number | undefined | null[]
 }
 
-export interface RecipeInterfaceData {
+export type RecipeInterfaceData =
+  | AllRecipesInterface
+  | DinnerRecipesInterface
+  | DessertRecipesInterface
+  | BreakfastRecipesInterface
+  | SearchRecipesInterface
+
+export interface AllRecipesInterface {
   recipes: RecipesInterface[]
+}
+export interface DinnerRecipesInterface {
+  dinner: RecipesInterface[]
+}
+export interface DessertRecipesInterface {
+  dessert: RecipesInterface[]
+}
+export interface BreakfastRecipesInterface {
+  breakfast: RecipesInterface[]
+}
+
+export interface SearchRecipesInterface {
+  searchRecipes: RecipesInterface[]
 }
 
 export interface RecipesInterfaceVars {
+  matchedString: String
   offset: number
   limit: number
   sortDecending: number
 }
 
 //graphql queries using Apollo client
-
 export const GET_RECIPE_QUERY = gql`
   query Recipes($offset: Int, $limit: Int, $sortDecending: Int) {
     recipes(limit: $limit, offset: $offset, sortDecending: $sortDecending) {

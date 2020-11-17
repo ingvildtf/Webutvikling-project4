@@ -12,6 +12,7 @@ const initialState: pageState = {
   pageSize: 15,
 }
 
+//Handels pagination state, by increase the pageNumber and pageOffset
 export default function pageReducer(
   state = initialState,
   action: ActionTypes

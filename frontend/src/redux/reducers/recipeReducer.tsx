@@ -17,6 +17,7 @@ import {
 } from '../../queries'
 import { DocumentNode } from 'graphql'
 
+//interface for typescript
 export interface recipeState {
   query: DocumentNode
   search: String
@@ -24,13 +25,15 @@ export interface recipeState {
   sortDecending: boolean
 }
 
+//initial state includes the query that fetches all recipes
 const initialState: recipeState = {
   query: GET_RECIPE_QUERY,
   search: '',
   activeRecipe: '',
-  sortDecending: true,
+  sortDecending: false,
 }
 
+//Sets state to different queries according to user input, either filtering on categories, searching on name, or sorting the data
 export default function recipeReducer(
   state: recipeState = initialState,
   action: ActionTypes
