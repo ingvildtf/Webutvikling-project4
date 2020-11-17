@@ -41,7 +41,7 @@ interface RecipeCardProps {
 }
 
 const RecipeCard = styled.TouchableOpacity<RecipeCardProps>`
-  width: 100%;
+  width: 50%;
   margin: 2px 0.5px 0 0;
   background-color: white;
   font-size: 14px;
@@ -75,10 +75,10 @@ const CardRatingWrapper = styled.View<RecipeCardProps>`
 `
 
 const Container = styled.View`
-  padding: 2%;
+  padding: 0%;
+  width: 100%;
   display: flex;
-  flex-direction: row;
-  flex: 1;
+  flex-direction: column;
 `
 
 //Card style
@@ -255,6 +255,7 @@ const RecipeDisplay = () => {
           {data != undefined ? (
             <FlatList
               data={data.recipes}
+              numColumns={2}
               renderItem={({ item }) => (
                 <RecipeCard
                   onPress={() => {
