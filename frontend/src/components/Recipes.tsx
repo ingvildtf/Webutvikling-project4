@@ -2,12 +2,15 @@ import * as React from 'react'
 import { useState } from 'react'
 import styled from 'styled-components/native'
 import { CheckBox } from 'react-native-elements'
-import { Image } from 'react-native'
+//import { Image } from 'react-native'
+import { Keyboard, TextInput } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
 import recipeReducer, { recipeState } from '../redux/reducers/recipeReducer'
 import reviewReducer, { reviewState } from '../redux/reducers/reviewReducer'
 import pageReducer, { pageState } from '../redux/reducers/pageReducer'
+import { AppState } from '../redux/store/store'
+import { ActionTypes } from '../redux/actions/types'
 
 import RecipeDisplay from './RecipeDisplay'
 import { resetThePage } from '../redux/actions/pageAction'
@@ -76,7 +79,9 @@ const Recipes: React.FunctionComponent = () => {
   const [dessertActiveRecipe, setActiveDessert] = useState(false)
   const dispatch = useDispatch()
 
-  const decendingSort = useSelector<recipeState>(state => state.sortDecending)
+  const sortDecending = useSelector<AppState, boolean>(
+    state => state.recipesReducer.sortDecending
+  )
 
   //Handling search-input
   let search = ''
@@ -93,6 +98,14 @@ const Recipes: React.FunctionComponent = () => {
       }
     }
     console.log(search)
+  }
+
+  const searchHandler = () => {
+    dispatch(resetThePage())
+    dispatch(filterTheRecipes(search))
+    setActiveDinner(false)
+    setActiveBreakfast(false)
+    setActiveDessert(false)
   }
 
   //Handling checbox-input, displaying active categories
@@ -134,8 +147,11 @@ const Recipes: React.FunctionComponent = () => {
   return (
     <Wrapper>
       <SearchBarWrapper>
-        <StyledSearchBar placeholder="What would you like?" />
-        <Button>
+        <StyledSearchBar
+          onChangeText={e => filteredByInput(e)}
+          placeholder="What would you like?"
+        />
+        <Button onPress={() => searchHandler()}>
           <StyledText>SEARCH</StyledText>
         </Button>
       </SearchBarWrapper>

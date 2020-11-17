@@ -72,6 +72,10 @@ const CardRatingWrapper = styled.View<RecipeCardProps>`
 
 const RecipeDisplay = () => {
   const [activeRecipe, setActiveRecipe] = useState()
+  const activateRecipe = (recipe: any) => {
+    setActiveRecipe(recipe)
+    dispatch(addRating(recipe.ID))
+  }
   /*
  useEffect(() => {
    if (activeRecipe !== undefined) openModal()
@@ -99,6 +103,8 @@ const RecipeDisplay = () => {
   )
   const dispatch = useDispatch()
 
+  console.log(pageSize)
+
   //Fetching data from backend by using Apollo Client
   const { data, loading, error } = useQuery<
     RecipeInterfaceData,
@@ -107,10 +113,8 @@ const RecipeDisplay = () => {
     variables: { offset: 0, limit: 15, sortDecending: -1 },
   })
 
-  const activateRecipe = (recipe: any) => {
-    setActiveRecipe(recipe)
-    dispatch(addRating(recipe.ID))
-  }
+  if (loading) return <CardRatingWrapper>Loading...</CardRatingWrapper>
+  if (error) return <CardRatingWrapper>Error!</CardRatingWrapper>
 
   return (
     <Wrapper>
