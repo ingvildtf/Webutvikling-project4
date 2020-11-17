@@ -1,6 +1,14 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import styled from 'styled-components/native'
-import { FlatList, Modal, Alert, ActivityIndicator } from 'react-native'
+import {
+  FlatList,
+  Modal,
+  Alert,
+  ActivityIndicator,
+  View,
+  NativeScrollEvent,
+  SafeAreaView,
+} from 'react-native'
 import { DocumentNode, gql, useQuery } from '@apollo/client'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -24,6 +32,7 @@ import pageReducer, { pageState } from '../redux/reducers/pageReducer'
 import { startsWith } from 'cypress/types/lodash'
 import { addRating } from '../redux/actions/reviewAction'
 import { incrementThePage } from '../redux/actions/pageAction'
+import { CurrentRenderContext } from '@react-navigation/native'
 
 //Styling using styled components
 export const Wrapper = styled.View`
@@ -133,7 +142,7 @@ export const Picture = styled.Image`
 `
 
 export const Content = styled.View`
-  width:100%;
+  width: 100%;
   padding: 3%;
   overflow: hidden;
   background-color: #f2f2f2;
@@ -156,8 +165,12 @@ const ModalText = styled.Text`
 
 const RecipeDisplay = () => {
   const [modalVisible, setModalVisible] = useState(false)
-
   const [activeRecipe, setActiveRecipe] = useState<RecipesInterface>()
+  const flatlistRef = useRef<FlatList<any>>()
+  let currentY: number = 0
+  let scrollOffset: number = 0
+  let flatlistTopOffset: number = 0
+  let flatlistHeight: number = 0
 
   const activateRecipe = (recipe: RecipesInterface) => {
     setModalVisible(true)
@@ -197,15 +210,11 @@ const RecipeDisplay = () => {
     RecipeInterfaceData,
     RecipesInterfaceVars
   >(query, {
-<<<<<<< HEAD
     variables: {
       offset: pageOffset,
       limit: pageSize,
-      sortDecending: sortDecending ? 1 : -1,
+      sortDecending: sortDecending ? -1 : 1,
     },
-=======
-    variables: { offset: 0, limit: 15, sortDecending: 1 },
->>>>>>> develop
   })
 
   if (loading)
@@ -225,56 +234,56 @@ const RecipeDisplay = () => {
 
   //Pagination, fetches more recipes from database
   const fetchMoreRecipes = () => {
-    fetchMore({
-      variables: {
-        offset: pageSize * pageNumber,
-        limit: pageSize,
-        sortDecending: sortDecending ? -1 : 1,
-      },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) {
-          dispatch(incrementThePage())
-          return prev
-        }
-        dispatch(incrementThePage())
-        return Object.assign({}, prev, {
-          recipes: [...prev.recipes, ...fetchMoreResult.recipes],
+    data != undefined
+      ? fetchMore({
+          variables: {
+            offset: data.recipes.length + 1,
+            limit: pageSize,
+            sortDecending: sortDecending ? -1 : 1,
+          },
+          updateQuery: (prev, { fetchMoreResult }) => {
+            if (!fetchMoreResult || fetchMoreResult.recipes.length === 0) {
+              return prev
+            }
+            return {
+              recipes: prev.recipes.concat(fetchMoreResult.recipes),
+            }
+          },
         })
-      },
-    })
+      : null
   }
 
   return (
     <Wrapper>
       <Container>
-        <ScrollView horizontal={false} showsHorizontalScrollIndicator={false}>
-          {data != undefined ? (
-            <FlatList
-              ListFooterComponent={() => <ActivityIndicator />}
-              data={data.recipes}
-              renderItem={({ item }) => (
-                <RecipeCard
-                  onPress={() => {
-                    activateRecipe(item)
+        {data != undefined ? (
+          <FlatList
+            data={data.recipes}
+            renderItem={({ item }) => (
+              <RecipeCard
+                onPress={() => {
+                  activateRecipe(item)
+                }}
+              >
+                <CardImage
+                  source={{
+                    uri: item.Image,
                   }}
-                >
-                  <CardImage
-                    source={{
-                      uri: item.Image,
-                    }}
-                    style={{ width: 400, height: 400 }}
-                  />
-                  <CardTitle>{item.Name}</CardTitle>
-                </RecipeCard>
-              )}
-              keyExtractor={recipe => recipe.ID}
-              onEndReached={fetchMoreRecipes}
-              onEndReachedThreshold={0}
-            ></FlatList>
-          ) : (
+                  style={{ width: 400, height: 400 }}
+                />
+                <CardTitle>{item.Name}</CardTitle>
+              </RecipeCard>
+            )}
+            keyExtractor={recipe => recipe.ID}
+            onEndReached={fetchMoreRecipes}
+            onEndReachedThreshold={0.5}
+            indicatorStyle={'black'}
+          />
+        ) : (
+          <View>
             <CardTitle>Undefined</CardTitle>
-          )}
-        </ScrollView>
+          </View>
+        )}
       </Container>
       <Modal
         animationType="fade"
