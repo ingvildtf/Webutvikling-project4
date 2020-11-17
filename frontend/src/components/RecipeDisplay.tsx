@@ -329,13 +329,19 @@ const RecipeDisplay = () => {
                   activateRecipe(item)
                 }}
               >
-                <CardImage
-                  source={{
-                    uri: item.Image,
-                  }}
-                  style={{ width: 150, height: 150 }}
-                />
-                <CardTitle>{item.Name}</CardTitle>
+                <CardContainer>
+                  <CardCover>
+                    <CardImage
+                      source={{
+                        uri: item.Image,
+                      }}
+                      style={{ width: 150, height: 150 }}
+                    />
+                  </CardCover>
+                  <CardContent>
+                    <CardTitle>{item.Name}</CardTitle>
+                  </CardContent>
+                </CardContainer>
               </RecipeCard>
             )}
             keyExtractor={recipe => recipe.ID}
