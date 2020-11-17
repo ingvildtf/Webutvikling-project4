@@ -2,15 +2,9 @@ import * as React from 'react'
 import { useState } from 'react'
 import styled from 'styled-components/native'
 import { CheckBox } from 'react-native-elements'
-//import { Image } from 'react-native'
-import { Keyboard, TextInput } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 
-import recipeReducer, { recipeState } from '../redux/reducers/recipeReducer'
-import reviewReducer, { reviewState } from '../redux/reducers/reviewReducer'
-import pageReducer, { pageState } from '../redux/reducers/pageReducer'
 import { AppState } from '../redux/store/store'
-import { ActionTypes } from '../redux/actions/types'
 
 import RecipeDisplay from './RecipeDisplay'
 import { resetThePage } from '../redux/actions/pageAction'
@@ -74,42 +68,41 @@ const Recipe = styled.View`
 `
 
 const Recipes: React.FunctionComponent = () => {
+  //local state to handel checkbox state for categories
   const [dinnerActiveRecipe, setActiveDinner] = useState(false)
   const [breafastActiveRecipe, setActiveBreakfast] = useState(false)
   const [dessertActiveRecipe, setActiveDessert] = useState(false)
 
+  //dispatch function to handle state with redux
   const dispatch = useDispatch()
 
+  //fetches global state from redux, that holds information if the recipes are going to be sorted in a descending order
   const sortDecending = useSelector<AppState, boolean>(
     state => state.recipesReducer.sortDecending
   )
 
-  //Handling search-input
-  let search = ''
-  const filteredByInput = (e: React.KeyboardEvent) => {
-    console.log(e.key)
-    if (e.key.length < 2) {
-      search += e.key
-    }
-    if (e.key === 'Backspace') {
-      let word = search
-      search = ''
-      for (let i = 0; i < word.length - 1; i++) {
-        search += word.charAt(i)
-      }
-    }
-    console.log(search)
-  }
+  //Keps track on the text input in the search field
+  const [value, onChangeText] = React.useState<string>('')
 
+  //handels click on search button and textinput in search field, sets global state to querie that fetches recipes including text input in the title
   const searchHandler = () => {
     dispatch(resetThePage())
-    dispatch(filterTheRecipes(search))
+    dispatch(filterTheRecipes(value))
     setActiveDinner(false)
     setActiveBreakfast(false)
     setActiveDessert(false)
   }
 
-  //Handling checbox-input, displaying active categories
+  //handels change of text input in the searchfield, if its empty all recipes will be fetched, by setting global state to all recipes
+  const changeText = (text: string) => {
+    if (text === '') {
+      dispatch(fetchAllTheRecipes())
+    }
+    onChangeText(text)
+    searchHandler()
+  }
+
+  //Handling checbox-input, displaying active categories, allows only one category to be active
   const onClick = (action: any) => {
     switch (action) {
       case 'dinner':
@@ -145,14 +138,16 @@ const Recipes: React.FunctionComponent = () => {
     }
   }
 
-  // onChangeText={e => filteredByInput(e)}
-
-  //onPress={() => searchHandler()}
   return (
     <Wrapper>
       <SearchBarWrapper>
-        <StyledSearchBar placeholder="What would you like?" />
-        <Button>
+        <StyledSearchBar
+          editable
+          onChangeText={text => changeText(text)}
+          placeholder="What would you like?"
+          value={value}
+        />
+        <Button onPress={searchHandler}>
           <StyledText>SEARCH</StyledText>
         </Button>
       </SearchBarWrapper>
@@ -188,6 +183,17 @@ const Recipes: React.FunctionComponent = () => {
           checked={dessertActiveRecipe}
           onPress={() => {
             dessertActiveRecipe ? onClick('allRecipes') : onClick('dessert')
+          }}
+          checkedColor="#607878"
+        />
+        <CheckBox
+          center
+          title="Sort Decending"
+          checkedIcon="dot-circle-o"
+          uncheckedIcon="circle-o"
+          checked={sortDecending}
+          onPress={() => {
+            dispatch(sortItDecending(!sortDecending))
           }}
           checkedColor="#607878"
         />
