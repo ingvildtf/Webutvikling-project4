@@ -71,6 +71,7 @@ const CardRatingWrapper = styled.View<RecipeCardProps>`
   align-items: center;
   padding: 0 1px 1px 1px;
 `
+
 const Container = styled.View`
   padding: 2%;
 `
@@ -85,19 +86,17 @@ const CenterdView = styled.View`
 
 const ModalView = styled.View`
   margin: 20px;
-  background-color: white;
+  background-color: #f2f2f2;
   border-radius: 10px;
   padding: 0px;
   align-items: center;
   height: 70%;
   width: 90%;
   overflow: scroll;
-`
-
-const OpenButton = styled.TouchableHighlight`
-  background-color: #f194ff;
-  border-radius: 20px;
-  padding: 10px;
+  overflow: visible;
+  shadow-color: black;
+  shadow-opacity: 0.9;
+  shadow-radius: 30;
 `
 
 const Header = styled.View`
@@ -106,7 +105,6 @@ const Header = styled.View`
   justify-content: space-between;
   width: 100%;
   padding: 10px;
-  border-radius: 10px;
   background-color: #afc9be;
 `
 
@@ -116,28 +114,27 @@ const ModalTitle = styled.Text`
 `
 
 const CloseButton = styled.TouchableHighlight`
-  border: none;
+  width: 5%;
   border-radius: 3px;
   margin-left: 0.5px;
-
-  :hover {
-    cursor: pointer;
-  }
 `
 const CloseText = styled.Text`
   color: white;
   font-size: 18px;
+  font-weight: bold;
+  text-align: center;
 `
 
 export const Picture = styled.Image`
-  width: 90%;
+  width: 100%;
   height: 40%;
   padding: 5%;
   background-color: #f2f2f2;
 `
 
 export const Content = styled.View`
-  padding: 5%;
+  width:100%;
+  padding: 3%;
   overflow: hidden;
   background-color: #f2f2f2;
   color: black;
@@ -146,7 +143,8 @@ export const Content = styled.View`
 `
 
 export const Recipe = styled.View`
-  padding: 5%;
+  width: 100%;
+  padding: 3%;
   background-color: #f2f2f2;
   color: black;
   overflow: hidden;
@@ -199,11 +197,15 @@ const RecipeDisplay = () => {
     RecipeInterfaceData,
     RecipesInterfaceVars
   >(query, {
+<<<<<<< HEAD
     variables: {
       offset: pageOffset,
       limit: pageSize,
       sortDecending: sortDecending ? 1 : -1,
     },
+=======
+    variables: { offset: 0, limit: 15, sortDecending: 1 },
+>>>>>>> develop
   })
 
   if (loading)
