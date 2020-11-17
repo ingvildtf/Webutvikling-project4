@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components/native'
-import { FlatList, Modal, Alert } from 'react-native'
+import { FlatList, Modal, Alert, ActivityIndicator } from 'react-native'
 import { DocumentNode, gql, useQuery } from '@apollo/client'
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -194,14 +194,16 @@ const RecipeDisplay = () => {
   )
   const dispatch = useDispatch()
 
-  console.log(pageSize)
-
   //Fetching data from backend by using Apollo Client
-  const { data, loading, error } = useQuery<
+  const { data, loading, error, fetchMore } = useQuery<
     RecipeInterfaceData,
     RecipesInterfaceVars
   >(query, {
-    variables: { offset: 0, limit: 15, sortDecending: -1 },
+    variables: {
+      offset: pageOffset,
+      limit: pageSize,
+      sortDecending: sortDecending ? 1 : -1,
+    },
   })
 
   if (loading)
@@ -219,12 +221,34 @@ const RecipeDisplay = () => {
     )
   }
 
+  //Pagination, fetches more recipes from database
+  const fetchMoreRecipes = () => {
+    fetchMore({
+      variables: {
+        offset: pageSize * pageNumber,
+        limit: pageSize,
+        sortDecending: sortDecending ? -1 : 1,
+      },
+      updateQuery: (prev, { fetchMoreResult }) => {
+        if (!fetchMoreResult) {
+          dispatch(incrementThePage())
+          return prev
+        }
+        dispatch(incrementThePage())
+        return Object.assign({}, prev, {
+          recipes: [...prev.recipes, ...fetchMoreResult.recipes],
+        })
+      },
+    })
+  }
+
   return (
     <Wrapper>
       <Container>
         <ScrollView horizontal={false} showsHorizontalScrollIndicator={false}>
           {data != undefined ? (
             <FlatList
+              ListFooterComponent={() => <ActivityIndicator />}
               data={data.recipes}
               renderItem={({ item }) => (
                 <RecipeCard
@@ -242,6 +266,8 @@ const RecipeDisplay = () => {
                 </RecipeCard>
               )}
               keyExtractor={recipe => recipe.ID}
+              onEndReached={fetchMoreRecipes}
+              onEndReachedThreshold={0}
             ></FlatList>
           ) : (
             <CardTitle>Undefined</CardTitle>
