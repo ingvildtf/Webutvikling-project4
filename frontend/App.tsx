@@ -26,7 +26,7 @@ const Title = styled.Text`
   color: white;
 `
 
-//Our app is implemented with Router for react native
+//Our app is implemented with Router for react native, and uses Redux for handling global states, and apollo client to fetch data from backend
 function App() {
   console.disableYellowBox = true
   return (

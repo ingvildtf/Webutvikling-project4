@@ -1,16 +1,9 @@
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components/native'
-import {
-  FlatList,
-  Modal,
-  Alert,
-  ActivityIndicator,
-  View,
-  NativeScrollEvent,
-  SafeAreaView,
-} from 'react-native'
-import { DocumentNode, gql, useQuery } from '@apollo/client'
-import { useSelector, useDispatch } from 'react-redux'
+import { FlatList, Modal, Alert, View } from 'react-native'
+import { DocumentNode, useQuery } from '@apollo/client'
+import { useSelector } from 'react-redux'
+import { ScrollView } from 'react-native-gesture-handler'
 
 import { AppState } from '../redux/store/store'
 import {
@@ -22,17 +15,12 @@ import {
   GET_BREAKFAST_RECIPES,
   GET_DESSERT_RECIPES,
   SEARCH_RECIPES,
+  AllRecipesInterface,
+  DinnerRecipesInterface,
+  BreakfastRecipesInterface,
+  DessertRecipesInterface,
+  SearchRecipesInterface,
 } from '../queries'
-import { ScrollView } from 'react-native-gesture-handler'
-
-import { resetThePage } from '../redux/actions/pageAction'
-import recipeReducer, { recipeState } from '../redux/reducers/recipeReducer'
-import reviewReducer, { reviewState } from '../redux/reducers/reviewReducer'
-import pageReducer, { pageState } from '../redux/reducers/pageReducer'
-import { startsWith } from 'cypress/types/lodash'
-import { addRating } from '../redux/actions/reviewAction'
-import { incrementThePage } from '../redux/actions/pageAction'
-import { CurrentRenderContext } from '@react-navigation/native'
 
 //Styling using styled components
 export const Wrapper = styled.View`
@@ -50,9 +38,9 @@ interface RecipeCardProps {
 }
 
 const RecipeCard = styled.TouchableOpacity<RecipeCardProps>`
-  width: 49%;
+  width: 50%;
   margin: 2px 0.5px 0 0;
-  background-color: #eff1ee;
+  background-color: white;
   font-size: 14px;
   text-align: center;
 `
@@ -72,6 +60,8 @@ const CardTitle = styled.Text<RecipeCardProps>`
   justify-content: center;
   align-items: center;
   padding: 0 1px 0 1px;
+  color: #3c4560;
+  font-weight: 600;
 `
 
 const CardRatingWrapper = styled.View<RecipeCardProps>`
@@ -82,7 +72,38 @@ const CardRatingWrapper = styled.View<RecipeCardProps>`
 `
 
 const Container = styled.View`
-  padding: 2%;
+  padding: 0%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+`
+
+//Card style
+const CardContainer = styled.View<RecipeCardProps>`
+  background: #fff;
+  height: 200px;
+  width: 150px;
+  border-radius: 14px;
+  margin: 18px;
+  margin-top: 20px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+`
+
+const CardCover = styled.View<RecipeCardProps>`
+  display: flex;
+  width: 100%;
+  height: 120px;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  overflow: hidden;
+`
+
+const CardContent = styled.View<RecipeCardProps>`
+  display: flex;
+  padding-top: 10px;
+  flex-direction: column;
+  align-items: center;
+  height: 60px;
 `
 
 //Modal style
@@ -123,7 +144,7 @@ const ModalTitle = styled.Text`
 `
 
 const CloseButton = styled.TouchableHighlight`
-  width: 5%;
+  width: 15%;
   border-radius: 3px;
   margin-left: 0.5px;
 `
@@ -164,28 +185,19 @@ const ModalText = styled.Text`
 `
 
 const RecipeDisplay = () => {
+  //local state to handle if the modal should be visible or not
   const [modalVisible, setModalVisible] = useState(false)
+  //local state to handle choosen recipe
   const [activeRecipe, setActiveRecipe] = useState<RecipesInterface>()
-  const flatlistRef = useRef<FlatList<any>>()
-  let currentY: number = 0
-  let scrollOffset: number = 0
-  let flatlistTopOffset: number = 0
-  let flatlistHeight: number = 0
 
+  //helper function for when a recipe i clicked, sets active recipe to be the recipe that is choosen and activates the modal
   const activateRecipe = (recipe: RecipesInterface) => {
     setModalVisible(true)
     setActiveRecipe(recipe)
-    //dispatch(addRating(recipe.ID))
   }
 
-  /*
- useEffect(() => {
-   if (activeRecipe !== undefined) openModal()
- }, [activeRecipe])
- */
-
   //Fetching data from global storage with redux
-  const query = useSelector<AppState, DocumentNode>(
+  let query = useSelector<AppState, DocumentNode>(
     state => state.recipesReducer.query
   )
   const sortDecending = useSelector<AppState, boolean>(
@@ -194,16 +206,13 @@ const RecipeDisplay = () => {
   const searchField = useSelector<AppState, String>(
     state => state.recipesReducer.search
   )
+  console.log(searchField)
   const pageOffset = useSelector<AppState, number>(
     state => state.pageReducer.pageOffset
   )
   const pageSize = useSelector<AppState, number>(
     state => state.pageReducer.pageSize
   )
-  const pageNumber = useSelector<AppState, number>(
-    state => state.pageReducer.pageNumber
-  )
-  const dispatch = useDispatch()
 
   //Fetching data from backend by using Apollo Client
   const { data, loading, error, fetchMore } = useQuery<
@@ -211,6 +220,7 @@ const RecipeDisplay = () => {
     RecipesInterfaceVars
   >(query, {
     variables: {
+      matchedString: searchField,
       offset: pageOffset,
       limit: pageSize,
       sortDecending: sortDecending ? -1 : 1,
@@ -237,20 +247,73 @@ const RecipeDisplay = () => {
     data != undefined
       ? fetchMore({
           variables: {
-            offset: data.recipes.length + 1,
+            offset: queryName(query).length + 1,
             limit: pageSize,
             sortDecending: sortDecending ? -1 : 1,
           },
           updateQuery: (prev, { fetchMoreResult }) => {
-            if (!fetchMoreResult || fetchMoreResult.recipes.length === 0) {
+            if (!fetchMoreResult) {
               return prev
             }
-            return {
-              recipes: prev.recipes.concat(fetchMoreResult.recipes),
+            switch (query) {
+              case GET_RECIPE_QUERY:
+                return {
+                  recipes: (prev as AllRecipesInterface).recipes.concat(
+                    (fetchMoreResult as AllRecipesInterface).recipes
+                  ),
+                }
+              case GET_DINNER_RECIPES:
+                return {
+                  dinner: (prev as DinnerRecipesInterface).dinner.concat(
+                    (fetchMoreResult as DinnerRecipesInterface).dinner
+                  ),
+                }
+              case GET_BREAKFAST_RECIPES:
+                return {
+                  breakfast: (prev as BreakfastRecipesInterface).breakfast.concat(
+                    (fetchMoreResult as BreakfastRecipesInterface).breakfast
+                  ),
+                }
+              case GET_DESSERT_RECIPES:
+                return {
+                  dessert: (prev as DessertRecipesInterface).dessert.concat(
+                    (fetchMoreResult as DessertRecipesInterface).dessert
+                  ),
+                }
+              case SEARCH_RECIPES:
+                return {
+                  searchRecipes: (prev as SearchRecipesInterface).searchRecipes.concat(
+                    (fetchMoreResult as SearchRecipesInterface).searchRecipes
+                  ),
+                }
+              default:
+                return {
+                  recipes: (prev as AllRecipesInterface).recipes.concat(
+                    (fetchMoreResult as AllRecipesInterface).recipes
+                  ),
+                }
             }
           },
         })
       : null
+  }
+
+  //Helper funciton to fetch the right queryName from graphql
+  const queryName = (query: DocumentNode) => {
+    switch (query) {
+      case GET_RECIPE_QUERY:
+        return Object((data as AllRecipesInterface).recipes)
+      case GET_DINNER_RECIPES:
+        return Object((data as DinnerRecipesInterface).dinner)
+      case GET_BREAKFAST_RECIPES:
+        return Object((data as BreakfastRecipesInterface).breakfast)
+      case GET_DESSERT_RECIPES:
+        return Object((data as DessertRecipesInterface).dessert)
+      case SEARCH_RECIPES:
+        return Object((data as SearchRecipesInterface).searchRecipes)
+      default:
+        return Object((data as AllRecipesInterface).recipes)
+    }
   }
 
   return (
@@ -258,7 +321,8 @@ const RecipeDisplay = () => {
       <Container>
         {data != undefined ? (
           <FlatList
-            data={data.recipes}
+            data={queryName(query)}
+            numColumns={2}
             renderItem={({ item }) => (
               <RecipeCard
                 onPress={() => {
@@ -269,7 +333,7 @@ const RecipeDisplay = () => {
                   source={{
                     uri: item.Image,
                   }}
-                  style={{ width: 400, height: 400 }}
+                  style={{ width: 150, height: 150 }}
                 />
                 <CardTitle>{item.Name}</CardTitle>
               </RecipeCard>
@@ -313,7 +377,7 @@ const RecipeDisplay = () => {
               />
               <ScrollView horizontal={false}>
                 <Content>
-                  <ModalText>{activeRecipe!.Ingredients.split(',')}</ModalText>
+                  <ModalText>{activeRecipe!.Ingredients}</ModalText>
                 </Content>
                 <Recipe>
                   <ModalText>{activeRecipe!.Instruction}</ModalText>
