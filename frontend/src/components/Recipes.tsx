@@ -77,6 +77,7 @@ const Recipes: React.FunctionComponent = () => {
   const [dinnerActiveRecipe, setActiveDinner] = useState(false)
   const [breafastActiveRecipe, setActiveBreakfast] = useState(false)
   const [dessertActiveRecipe, setActiveDessert] = useState(false)
+
   const dispatch = useDispatch()
 
   const sortDecending = useSelector<AppState, boolean>(
@@ -145,21 +146,27 @@ const Recipes: React.FunctionComponent = () => {
   }
 
   // onChangeText={e => filteredByInput(e)}
+
+  //onPress={() => searchHandler()}
   return (
     <Wrapper>
       <SearchBarWrapper>
         <StyledSearchBar placeholder="What would you like?" />
-        <Button onPress={() => searchHandler()}>
+        <Button>
           <StyledText>SEARCH</StyledText>
         </Button>
       </SearchBarWrapper>
+
       <Categories>
         <CheckBox
           center
           title="Dinner"
           checkedIcon="dot-circle-o"
           uncheckedIcon="circle-o"
-          checked={false}
+          checked={dinnerActiveRecipe}
+          onPress={() => {
+            dinnerActiveRecipe ? onClick('allRecipes') : onClick('dinner')
+          }}
           checkedColor="#607878"
         />
         <CheckBox
@@ -167,7 +174,10 @@ const Recipes: React.FunctionComponent = () => {
           title="Breakfast"
           checkedIcon="dot-circle-o"
           uncheckedIcon="circle-o"
-          checked={true}
+          checked={breafastActiveRecipe}
+          onPress={() => {
+            breafastActiveRecipe ? onClick('allRecipes') : onClick('breakfast')
+          }}
           checkedColor="#607878"
         />
         <CheckBox
@@ -175,7 +185,10 @@ const Recipes: React.FunctionComponent = () => {
           title="Dessert"
           checkedIcon="dot-circle-o"
           uncheckedIcon="circle-o"
-          checked={true}
+          checked={dessertActiveRecipe}
+          onPress={() => {
+            dessertActiveRecipe ? onClick('allRecipes') : onClick('dessert')
+          }}
           checkedColor="#607878"
         />
       </Categories>
