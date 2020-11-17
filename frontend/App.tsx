@@ -28,6 +28,7 @@ const Title = styled.Text`
 
 //Our app is implemented with Router for react native
 function App() {
+  console.disableYellowBox = true
   return (
     <Provider store={store}>
       <ApolloProvider client={client}>
