@@ -39,8 +39,9 @@ const Button = styled.TouchableOpacity`
 `
 
 const StyledText = styled.Text`
-  font-size: 20px;
+  font-size: 10px;
   color: white;
+  text-align: center;
 `
 const StyledSearchBar = styled.TextInput`
   width: 80%;
@@ -53,11 +54,12 @@ const StyledSearchBar = styled.TextInput`
   text-align: center;
 `
 const Categories = styled.View`
-  padding-right: 10px;
+  padding: 5px;
   text-decoration: none;
-  background-color: lightblue;
+  background-color: white;
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   justify-content: space-around;
 `
 
