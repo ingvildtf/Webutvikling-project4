@@ -7,7 +7,9 @@ import {
   GET_RECIPE_QUERY,
   RecipesInterfaceVars,
   RecipeInterfaceData,
+  RecipesInterface,
 } from '../queries'
+import { ScrollView } from 'react-native-gesture-handler'
 
 //Styling using styled components
 export const Wrapper = styled.View`
@@ -24,7 +26,7 @@ interface RecipeCardProps {
   className?: string
 }
 
-const RecipeCard = styled.View<RecipeCardProps>`
+const RecipeCard = styled.TouchableOpacity<RecipeCardProps>`
   width: 49%;
   margin: 2px 0.5px 0 0;
   background-color: #eff1ee;
@@ -55,25 +57,8 @@ const CardRatingWrapper = styled.View<RecipeCardProps>`
   align-items: center;
   padding: 0 1px 1px 1px;
 `
-const CenterdView = styled.View`
-  flex: 1;
-  justify-content: center;
-  align-items: center;
-  margin-top: 22px;
-`
-
-const ModalView = styled.View`
-  margin: 20px;
-  background-color: white;
-  border-radius: 20px;
-  padding: 35px;
-  align-items: center;
-`
-
-const OpenButton = styled.TouchableHighlight`
-  background-color: #f194ff;
-  border-radius: 20px;
-  padding: 10px;
+const Container = styled.View`
+  padding: 2%;
 `
 
 //Fetching data from backend by using Apollo Client
@@ -102,59 +87,43 @@ const RecipeDisplay = () => {
     )
   }
 
+  const [activeRecipe, setActiveRecipe] = useState<RecipesInterface>()
+
+  const activateRecipe = (recipe: RecipesInterface) => {
+    setModalVisible(true)
+    setActiveRecipe(recipe)
+  }
+
   return (
     <Wrapper>
-      {data != undefined ? (
-        <FlatList
-          data={data.recipes}
-          renderItem={({ item }) => (
-            <RecipeCard
-              onPress={() => {
-                setModalVisible(true)
-              }}
-            >
-              <CardImage
-                source={{
-                  uri: item.Image,
-                }}
-                style={{ width: 400, height: 400 }}
-              />
-              <OpenButton
-                onPress={() => {
-                  setModalVisible(true)
-                }}
-              >
-                <CardTitle>{item.Name}</CardTitle>
-              </OpenButton>
-            </RecipeCard>
-          )}
-          keyExtractor={recipe => recipe.ID}
-        ></FlatList>
-      ) : (
-        <CardTitle>Undefined</CardTitle>
-      )}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert('Modal has been closed.')
-        }}
-      >
-        <CenterdView>
-          <ModalView>
-            <CardTitle>Hello World!</CardTitle>
+      <Container>
+        <ScrollView horizontal={false} showsHorizontalScrollIndicator={false}>
+          {data != undefined ? (
+            <FlatList
+              data={data.recipes}
+              renderItem={({ item }) => (
+                <RecipeCard
+                  onPress={() => {
+                    activateRecipe(item)
+                  }}
+                >
+                  <CardImage
+                    source={{
+                      uri: item.Image,
+                    }}
+                    style={{ width: 400, height: 400 }}
+                  />
 
-            <OpenButton
-              onPress={() => {
-                setModalVisible(!modalVisible)
-              }}
-            >
-              <CardTitle>Hide Modal</CardTitle>
-            </OpenButton>
-          </ModalView>
-        </CenterdView>
-      </Modal>
+                  <CardTitle>{item.Name}</CardTitle>
+                </RecipeCard>
+              )}
+              keyExtractor={recipe => recipe.ID}
+            ></FlatList>
+          ) : (
+            <CardTitle>Undefined</CardTitle>
+          )}
+        </ScrollView>
+      </Container>
     </Wrapper>
   )
 }
