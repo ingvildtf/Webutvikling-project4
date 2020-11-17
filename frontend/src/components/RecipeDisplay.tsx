@@ -204,8 +204,20 @@ const RecipeDisplay = () => {
     variables: { offset: 0, limit: 15, sortDecending: -1 },
   })
 
-  if (loading) return <CardRatingWrapper>Loading...</CardRatingWrapper>
-  if (error) return <CardRatingWrapper>Error!</CardRatingWrapper>
+  if (loading)
+    return (
+      <CardRatingWrapper>
+        <CardTitle>Loading...</CardTitle>
+      </CardRatingWrapper>
+    )
+  if (error) {
+    console.log(error)
+    return (
+      <CardRatingWrapper>
+        <CardTitle>Error!</CardTitle>
+      </CardRatingWrapper>
+    )
+  }
 
   return (
     <Wrapper>
@@ -226,7 +238,6 @@ const RecipeDisplay = () => {
                     }}
                     style={{ width: 400, height: 400 }}
                   />
-
                   <CardTitle>{item.Name}</CardTitle>
                 </RecipeCard>
               )}
@@ -237,7 +248,6 @@ const RecipeDisplay = () => {
           )}
         </ScrollView>
       </Container>
-
       <Modal
         animationType="fade"
         transparent={true}
@@ -259,7 +269,6 @@ const RecipeDisplay = () => {
                   <CloseText>X</CloseText>
                 </CloseButton>
               </Header>
-
               <Picture
                 source={{
                   uri: activeRecipe!.Image,
