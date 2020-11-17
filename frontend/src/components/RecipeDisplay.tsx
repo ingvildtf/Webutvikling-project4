@@ -133,7 +133,7 @@ export const Picture = styled.Image`
 `
 
 export const Content = styled.View`
-  width:100%;
+  width: 100%;
   padding: 3%;
   overflow: hidden;
   background-color: #f2f2f2;
@@ -274,7 +274,7 @@ const RecipeDisplay = () => {
               />
               <ScrollView horizontal={false}>
                 <Content>
-                  <ModalText>{activeRecipe!.Ingredients.split(',')}</ModalText>
+                  <ModalText>{activeRecipe!.Ingredients}</ModalText>
                 </Content>
                 <Recipe>
                   <ModalText>{activeRecipe!.Instruction}</ModalText>
