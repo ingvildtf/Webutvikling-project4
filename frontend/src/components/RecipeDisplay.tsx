@@ -1,13 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components/native'
 import { FlatList } from 'react-native'
-import { gql, useQuery } from '@apollo/client'
+import { DocumentNode, gql, useQuery } from '@apollo/client'
+import { useSelector, useDispatch } from 'react-redux'
 
+import { AppState } from '../redux/store/store'
 import {
   GET_RECIPE_QUERY,
   RecipesInterfaceVars,
   RecipeInterfaceData,
+  GET_DINNER_RECIPES,
+  GET_BREAKFAST_RECIPES,
+  GET_DESSERT_RECIPES,
+  SEARCH_RECIPES,
 } from '../queries'
+
+import { resetThePage } from '../redux/actions/pageAction'
+import recipeReducer, { recipeState } from '../redux/reducers/recipeReducer'
+import reviewReducer, { reviewState } from '../redux/reducers/reviewReducer'
+import pageReducer, { pageState } from '../redux/reducers/pageReducer'
+import { startsWith } from 'cypress/types/lodash'
+import { addRating } from '../redux/actions/reviewAction'
+import { incrementThePage } from '../redux/actions/pageAction'
 
 //Styling using styled components
 export const Wrapper = styled.View`
@@ -56,29 +70,51 @@ const CardRatingWrapper = styled.View<RecipeCardProps>`
   padding: 0 1px 1px 1px;
 `
 
-//Fetching data from backend by using Apollo Client
 const RecipeDisplay = () => {
+  const [activeRecipe, setActiveRecipe] = useState()
+  const activateRecipe = (recipe: any) => {
+    setActiveRecipe(recipe)
+    dispatch(addRating(recipe.ID))
+  }
+  /*
+ useEffect(() => {
+   if (activeRecipe !== undefined) openModal()
+ }, [activeRecipe])
+ */
+
+  //Fetching data from global storage with redux
+  const query = useSelector<AppState, DocumentNode>(
+    state => state.recipesReducer.query
+  )
+  const sortDecending = useSelector<AppState, boolean>(
+    state => state.recipesReducer.sortDecending
+  )
+  const searchField = useSelector<AppState, String>(
+    state => state.recipesReducer.search
+  )
+  const pageOffset = useSelector<AppState, number>(
+    state => state.pageReducer.pageOffset
+  )
+  const pageSize = useSelector<AppState, number>(
+    state => state.pageReducer.pageSize
+  )
+  const pageNumber = useSelector<AppState, number>(
+    state => state.pageReducer.pageNumber
+  )
+  const dispatch = useDispatch()
+
+  console.log(pageSize)
+
+  //Fetching data from backend by using Apollo Client
   const { data, loading, error } = useQuery<
     RecipeInterfaceData,
     RecipesInterfaceVars
-  >(GET_RECIPE_QUERY, {
+  >(query, {
     variables: { offset: 0, limit: 15, sortDecending: -1 },
   })
 
-  if (loading)
-    return (
-      <CardRatingWrapper>
-        <CardTitle>Loading...</CardTitle>
-      </CardRatingWrapper>
-    )
-  if (error) {
-    console.log(error)
-    return (
-      <CardRatingWrapper>
-        <CardTitle>Error!</CardTitle>
-      </CardRatingWrapper>
-    )
-  }
+  if (loading) return <CardRatingWrapper>Loading...</CardRatingWrapper>
+  if (error) return <CardRatingWrapper>Error!</CardRatingWrapper>
 
   return (
     <Wrapper>
@@ -86,7 +122,7 @@ const RecipeDisplay = () => {
         <FlatList
           data={data.recipes}
           renderItem={({ item }) => (
-            <RecipeCard onClick={() => {}}>
+            <RecipeCard>
               <CardImage
                 source={{
                   uri: item.Image,

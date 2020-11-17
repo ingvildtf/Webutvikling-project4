@@ -10,6 +10,7 @@ export interface RecipesInterface {
   Image: string
   Review: number | undefined | null[]
 }
+
 export interface RecipeInterfaceData {
   recipes: RecipesInterface[]
 }
